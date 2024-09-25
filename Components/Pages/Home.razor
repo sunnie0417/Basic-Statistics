@@ -1,0 +1,140 @@
+﻿@page "/"
+@using Lab1.Models
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>Home</PageTitle>
+
+<EditForm Model="@numbersModel" FormName="numbersForm" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <header>
+        <h1 class="display-3 text-center">Statistics</h1>
+        <p class="fs-5 text-center">Enter two or more numerical numbers and click Calculate button to get their
+            statistics.
+        </p>
+    </header>
+    <div class="row">
+        <div class="col-3"></div>
+
+        <div class="col-6">
+            <div class="row my-3">
+                <div class="col-3">
+                    <label for="inputFirstNumber" class="col-form-label">First Number</label>
+                </div>
+                <div class="col-auto">
+                    <InputText class="form-control" id="inputFirstNumber" @bind-Value="numbersModel.Number1" />
+                </div>
+                <div class="col-auto align-content-center">
+                    <ValidationMessage For="@(() => numbersModel.Number1)" />
+                </div>
+            </div>
+            <div class="row my-3">
+                <div class="col-3">
+                    <label for="inputSecondNumer" class="col-form-label">Second Number</label>
+                </div>
+                <div class="col-auto">
+                    <InputText class="form-control" id="inputSecondNumber" @bind-Value="numbersModel.Number2" />
+                </div>
+                <div class="col-auto align-content-center">
+                    <ValidationMessage For="@(() => numbersModel.Number2)" />
+                </div>
+            </div>
+            <div class="row my-3">
+                <div class="col-3">
+                    <label for="inputThirdNumber" class="col-form-label">Third Number</label>
+                </div>
+                <div class="col-auto">
+                    <InputText class="form-control" id="inputThirdNumber" @bind-Value="numbersModel.Number3" />
+                </div>
+                <div class="col-auto align-content-center">
+                    <ValidationMessage For="@(() => numbersModel.Number3)" />
+                </div>
+            </div>
+            <div class="row my-3">
+                <div class="col-3">
+                    <label for="inputFourthNumber" class="col-form-label">Fourth Number</label>
+                </div>
+                <div class="col-auto">
+                    <InputText class="form-control" id="inputFourthNumber" @bind-Value="numbersModel.Number4" />
+                </div>
+                <div class="col-auto align-content-center">
+                    <ValidationMessage For="@(() => numbersModel.Number4)" />
+                </div>
+            </div>
+            <div class="row my-3">
+                <div class="col-3"></div>
+                <div class="col-auto"><button type="submit" class="btn btn-primary">Calculate</button></div>
+            </div>
+            @if (Calculated && @numberCount <= 1)
+            {
+                <div class="alert alert-danger my-2">You must enter at least 2 numbers, no statistics were calculated!</div>
+            }
+
+            @if (Calculated && @numberCount > 1)
+            {
+                <p class="font-weight-bold">You entered @numberCount numbers. The following are their statistics.</p>
+
+                <div class="row my-3">
+                    <div class="col-3">
+                        <label for="OnputMaximum" class="col-form-label">Maximum</label>
+                    </div>
+                    <div class="col-auto align-content-center font-weight-bold">@max</div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-3">
+                        <label for="OnputMinimum" class="col-form-label">Minimum</label>
+                    </div>
+                    <div class="col-auto align-content-center font-weight-bold">@min</div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-3">
+                        <label for="OnputSum" class="col-form-label">Total</label>
+                    </div>
+                    <div class="col-auto align-content-center font-weight-bold">@sum</div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-3">
+                        <label for="OnputAverage" class="col-form-label">Average</label>
+                    </div>
+                    <div class="col-auto align-content-center font-weight-bold">@average</div>
+                </div>
+            }
+        </div>
+        <div class="col-3"></div>
+    </div>
+</EditForm>
+
+
+@code {
+    [SupplyParameterFromForm]
+    private NumbersModel numbersModel { get; set; } = new();
+    private bool Calculated = false;
+    private double? max, min, sumNumber, average;
+    private int numberCount;
+    private string? sum;
+
+    private void HandleValidSubmit()
+    {
+        var numbersList = new List<double>();
+        var numbers = new[] { numbersModel.Number1, numbersModel.Number2, numbersModel.Number3, numbersModel.Number4 };
+        foreach (var number in numbers)
+        {
+            if (!string.IsNullOrEmpty(number) && double.TryParse(number, out double result))
+            {
+                numbersList.Add(result);
+            }
+        }
+
+        if (numbersList.Any())
+        {
+            max = numbersList.Max();
+            min = numbersList.Min();
+            sumNumber = Math.Round(numbersList.Sum(), 2);
+            sum = sumNumber?.ToString("F2");
+            average = Math.Round(numbersList.Average(), 2);
+            numberCount = numbersList.Count();
+        }
+
+        Calculated = true;
+    }
+
+}
